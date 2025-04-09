@@ -1,0 +1,157 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<div class="container-1" id="app">
+    <h2>Информация о сне</h2>
+
+    <form method="post" @submit.prevent="handleSubmit">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div class="server-error">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label>Время отхода ко сну</label>
+            <input
+                type="datetime-local"
+                name="sleep_start"
+                v-model="sleepStart"
+                @input="validateSleepTime"
+                :class="{ 'auth-invalid-input': errors.sleepStart }"
+                required>
+            <div class="vue-error-message">${ errors.sleepStart }</div>
+        </div>
+
+        <div class="form-group">
+            <label>Время пробуждения</label>
+            <input
+                type="datetime-local"
+                name="sleep_end"
+                v-model="sleepEnd"
+                @input="validateSleepTime"
+                :class="{ 'auth-invalid-input': errors.sleepEnd }"
+                required>
+            <div class="vue-error-message">${ errors.sleepEnd }</div>
+        </div>
+
+        <div class="form-group">
+            <label>Лёгкость пробуждения</label>
+            <select
+                name="wake_quality"
+                required
+                v-model="wakeQuality">
+                <option value="1">1 - Тяжелое пробуждение</option>
+                <option value="2">2 - Нормальное пробуждение</option>
+                <option value="3">3 - Легкое пробуждение</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Уровень бодрости</label>
+            <select
+                name="alertness"
+                required
+                v-model="alertness">
+                <option value="1">1 - Низкий</option>
+                <option value="2">2 - Средний</option>
+                <option value="3">3 - Высокий</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Заметки</label>
+            <textarea
+                name="note"
+                placeholder="Опишите особенности сна"
+                v-model="note">${ note }</textarea>
+        </div>
+
+        <button type="submit" class="submit-button-1">
+            Сохранить информацию
+        </button>
+    </form>
+
+    <div class="link-1">
+        <a href="{% url 'home' %}">Вернуться на главную</a>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        delimiters: ['${', '}'],
+        data() {
+            return {
+                sleepStart: '',
+                sleepEnd: '',
+                wakeQuality: '2',
+                alertness: '2',
+                note: '',
+                errors: {
+                    sleepStart: '',
+                    sleepEnd: ''
+                }
+            }
+        },
+        mounted() {
+            {% if form.sleep_start.value %}
+                this.sleepStart = '{{ form.sleep_start.value|date:"Y-m-d\TH:i" }}';
+            {% endif %}
+
+            {% if form.sleep_end.value %}
+                this.sleepEnd = '{{ form.sleep_end.value|date:"Y-m-d\TH:i" }}';
+            {% endif %}
+
+            {% if form.errors %}
+                {% for field, errors in form.errors.items %}
+                    this.errors['{{ field }}'] = `{{ errors|first|escapejs }}`;
+                {% endfor %}
+            {% endif %}
+        },
+        methods: {
+            validateSleepTime() {
+                this.errors.sleepStart = '';
+                this.errors.sleepEnd = '';
+
+                if (!this.sleepStart || !this.sleepEnd) return;
+
+                const start = new Date(this.sleepStart);
+                const end = new Date(this.sleepEnd);
+                const diffHours = (end - start) / (1000 * 60 * 60);
+
+                if (start >= end) {
+                    this.errors.sleepStart = 'Время пробуждения должно быть позже засыпания';
+                    this.errors.sleepEnd = 'Проверьте даты';
+                }
+
+                if (diffHours > 24) {
+                    this.errors.sleepStart = 'Проверьте даты';
+                    this.errors.sleepEnd = 'Сон не может длиться больше 24 часов';
+                }
+            },
+            validateAll() {
+                this.validateSleepTime();
+            },
+            handleSubmit(event) {
+                this.validateAll();
+
+                if (!Object.values(this.errors).some(e => e)) {
+                    event.target.submit();
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+        }
+    }).mount('#app');
+</script>
+{% endblock %}

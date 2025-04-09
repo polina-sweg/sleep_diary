@@ -1,0 +1,202 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Если пользователь уже авторизован, то при попытке попасть на страницу регистрации
+     перенаправляем его на домашнюю страницу-->
+    {% if user.is_authenticated %}
+        <script>
+            window.location.href = "{% url 'home' %}";
+        </script>
+    {% else %}
+    <style>
+        .auth-register-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+    </style>
+
+    <div class="container-1" id="app">
+        <h2>Регистрация</h2>
+
+        <form method="post" class="auth-register-form" @submit.prevent="handleSubmit">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_username">Имя пользователя</label>
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Имя пользователя: от 6 до 15 символов"
+                    id="id_username"
+                    v-model="username"
+                    @input="validateUsername"
+                    :class="{ 'auth-invalid-input': errors.username }"
+                    required>
+
+                <div class="vue-error-message">${ errors.username }</div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                <input
+                    type="email"
+                    name="email"
+                    id="id_email"
+                    v-model="email"
+                    @input="validateEmail"
+                    :class="{ 'auth-invalid-input': errors.email }"
+                    required>
+                <div class="vue-error-message">${ errors.email }</div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_desired_sleep_hours">Норма часов сна</label>
+                <input
+                    type="number"
+                    name="desired_sleep_hours"
+                    id="id_desired_sleep_hours"
+                    v-model="desiredSleepHours"
+                    @input="validateDesiredSleepHours"
+                    min="1"
+                    max="24"
+                    :class="{ 'auth-invalid-input': errors.desiredSleepHours }">
+                <div class="vue-error-message">${ errors.desiredSleepHours }</div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password1">Пароль</label>
+                <input
+                    type="password"
+                    name="password1"
+                    placeholder="Введите пароль"
+                    id="id_password1"
+                    v-model="password1"
+                    @input="validatePassword1"
+                    :class="{ 'auth-invalid-input': errors.password1 }"
+                    required>
+                <div class="vue-error-message">${ errors.password1 }</div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password2">Подтверждение пароля</label>
+                <input
+                    type="password"
+                    name="password2"
+                    placeholder="Повторите пароль"
+                    id="id_password2"
+                    v-model="password2"
+                    @input="validatePassword2"
+                    :class="{ 'auth-invalid-input': errors.password2 }"
+                    required>
+                <div class="vue-error-message">${ errors.password2 }</div>
+            </div>
+
+            <button type="submit" class="submit-button-1">Зарегистрироваться</button>
+        </form>
+
+        <div class="link-1">
+            Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            delimiters: ['${', '}'],
+            data() {
+                return {
+                    username: '',
+                    email: '',
+                    desiredSleepHours: 8,
+                    password1: '',
+                    password2: '',
+                    errors: {
+                        username: '',
+                        email: '',
+                        desiredSleepHours: '',
+                        password1: '',
+                        password2: ''
+                    }
+                }
+            },
+            mounted() {
+                this.username = document.getElementById('id_username').value;
+                this.email = document.getElementById('id_email').value;
+                this.desiredSleepHours = document.getElementById('id_desired_sleep_hours').value || 8;
+                this.password1 = document.getElementById('id_password1').value;
+                this.password2 = document.getElementById('id_password2').value;
+
+                {% if form.errors %}
+                    {% for field, errors in form.errors.items %}
+                        this.errors['{{ field }}'] = `{{ errors|first|escapejs }}`;
+                    {% endfor %}
+                {% endif %}
+            },
+            methods: {
+                validateUsername() {
+                    const value = this.username;
+                    if (value.length < 6 || value.length > 15) {
+                        this.errors.username = 'Имя пользователя должно быть от 6 до 15 символов';
+                    } else if (!/^[A-Za-z0-9_]+$/.test(value)) {
+                        this.errors.username = 'Можно использовать только буквы, цифры и подчёркивания';
+                    } else {
+                        this.errors.username = '';
+                    }
+                },
+                validateEmail() {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(this.email)) {
+                        this.errors.email = 'Введите корректный email адрес';
+                    } else {
+                        this.errors.email = '';
+                    }
+                },
+                validateDesiredSleepHours() {
+                    const value = parseInt(this.desiredSleepHours);
+                    if (isNaN(value) || value < 1 || value > 24) {
+                        this.errors.desiredSleepHours = 'Введите число от 1 до 24';
+                    } else {
+                        this.errors.desiredSleepHours = '';
+                    }
+                },
+                validatePassword1() {
+                    const value = this.password1;
+                    const hasUpperCase = /[A-Z]/.test(value);
+                    const hasNumber = /\d/.test(value);
+                    const hasSpecial = /[!@#$%^&*()]/.test(value);
+
+                    this.errors.password1 = '';
+                    if (value.length < 8) return this.errors.password1 = 'Минимум 8 символов';
+                    if (!hasUpperCase) return this.errors.password1 = 'Добавьте заглавную букву';
+                    if (!hasNumber) return this.errors.password1 = 'Добавьте цифру';
+                    if (!hasSpecial) return this.errors.password1 = 'Добавьте спецсимвол (!@#$%^&*())';
+                },
+                validatePassword2() {
+                    if (this.password2 !== this.password1) {
+                        this.errors.password2 = 'Пароли не совпадают';
+                    } else {
+                        this.errors.password2 = '';
+                    }
+                },
+                validateAll() {
+                    this.validateUsername();
+                    this.validateEmail();
+                    this.validateDesiredSleepHours();
+                    this.validatePassword1();
+                    this.validatePassword2();
+                },
+                handleSubmit(event) {
+                    this.validateAll();
+                    if (!Object.values(this.errors).some(e => e)) {
+                        event.target.submit();
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+    {% endif %}
+{% endblock %}

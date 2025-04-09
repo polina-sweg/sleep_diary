@@ -1,0 +1,136 @@
+{% extends "main.html" %}
+
+{% block title %}Редактирование записи{% endblock %}
+
+{% block content %}
+<style>
+    select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #B0E0E6;
+        border-radius: 6px;
+        font-size: 16px;
+        background: white;
+        appearance: none;
+    }
+</style>
+
+<div class="container-1" id="app">
+    <h2>Редактирование записи</h2>
+
+    <form method="post" class="record-form" @submit.prevent="handleSubmit">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div class="server-error">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label>Время начала сна</label>
+            <input type="datetime-local"
+                   name="{{ form.sleep_start.name }}"
+                   v-model="sleepStart"
+                   @input="validateSleepTime"
+                   :class="{ 'auth-invalid-input': errors.sleepStart }"
+                   required>
+            <div class="vue-error-message">${ errors.sleepStart }</div>
+        </div>
+
+        <div class="form-group">
+            <label>Время окончания сна</label>
+            <input type="datetime-local"
+                   name="{{ form.sleep_end.name }}"
+                   v-model="sleepEnd"
+                   @input="validateSleepTime"
+                   :class="{ 'auth-invalid-input': errors.sleepEnd }"
+                   required>
+            <div class="vue-error-message">${ errors.sleepEnd }</div>
+        </div>
+
+        <div class="form-group">
+            <label>Качество пробуждения</label>
+            {{ form.wake_quality }}
+        </div>
+
+        <div class="form-group">
+            <label>Бодрость</label>
+            {{ form.alertness }}
+        </div>
+
+        <div class="form-group">
+            <label>Заметка</label>
+            <textarea name="{{ form.note.name }}" rows="3">${ note }</textarea>
+        </div>
+
+        <button type="submit" class="submit-button-1">Сохранить изменения</button>
+    </form>
+
+    <div class="link-1">
+        <a href="{% url 'home' %}">Назад к списку</a>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        delimiters: ['${', '}'],
+        data() {
+            return {
+                sleepStart: '',
+                sleepEnd: '',
+                note: '{{ form.note.value|default:""|escapejs }}',
+                errors: {
+                    sleepStart: '',
+                    sleepEnd: ''
+                }
+            }
+        },
+        mounted() {
+            this.sleepStart = '{{ form.sleep_start.value|date:"Y-m-d\TH:i"|escapejs }}';
+            this.sleepEnd = '{{ form.sleep_end.value|date:"Y-m-d\TH:i"|escapejs }}';
+
+            {% if form.errors %}
+                {% for field, errors in form.errors.items %}
+                    this.errors['{{ field }}'] = `{{ errors|first|escapejs }}`;
+                {% endfor %}
+            {% endif %}
+        },
+        methods: {
+            validateSleepTime() {
+                this.errors.sleepStart = '';
+                this.errors.sleepEnd = '';
+
+                if (!this.sleepStart || !this.sleepEnd) return;
+
+                const start = new Date(this.sleepStart);
+                const end = new Date(this.sleepEnd);
+                const diffHours = (end - start) / (1000 * 60 * 60);
+
+                if (start >= end) {
+                    this.errors.sleepStart = 'Время окончания должно быть позже начала';
+                    this.errors.sleepEnd = 'Проверьте даты';
+                }
+
+                if (diffHours > 24) {
+                    this.errors.sleepEnd = 'Сон не может длиться более 24 часов';
+                }
+            },
+            handleSubmit(event) {
+                this.validateSleepTime();
+
+                if (!Object.values(this.errors).some(e => e)) {
+                    event.target.submit();
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+        }
+    }).mount('#app');
+</script>
+{% endblock %}

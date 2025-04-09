@@ -1,0 +1,13 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div class="container-1">
+    <h2>Подтверждение удаления</h2>
+    <form method="post">
+        {% csrf_token %}
+        <p>Вы уверены, что хотите удалить запись от {{ object.sleep_start|date:"d.m.Y" }}?</p>
+        <button type="submit" class="submit-button-1 danger">Удалить</button>
+        <a href="{% url 'record_detail' object.pk %}" class="link-1">Отмена</a>
+    </form>
+</div>
+{% endblock %}

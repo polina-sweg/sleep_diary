@@ -1,0 +1,128 @@
+/* Из signup */
+h2 {
+    color: #87CEEB;
+    margin: 0 0 25px 0;
+    font-size: 30px;
+    font-weight: bold;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #B0E0E6;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+input:focus {
+    border-color: #87CEEB;
+    outline: none;
+}
+
+.error {
+    color: #ff4444;
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+/* Для system */
+.container-1 {
+    position: relative;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4a4a4a;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #B0E0E6;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #87CEEB;
+}
+
+.submit-button-1 {
+    background: #87CEEB;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 14px 20px;
+}
+
+.link-1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.link-1 a {
+    color: #87CEEB;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link-1 a:hover {
+    text-decoration: underline;
+}
+
+
+/* Из блока аналитикм */
+.empty-container {
+    text-align: center;
+    padding: 3rem;
+    color: #87CEEB;
+    border: 2px dashed #B0E0E6;
+    border-radius: 12px;
+    margin: 2rem 0;
+}
+
+.vue-error-message {
+    color: #ff4444;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.auth-invalid-input {
+    border-color: #ff4444 !important;
+}
+
+.server-error {
+    color: #ff4444;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background: #ffecec;
+}
+select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #B0E0E6;
+    border-radius: 6px;
+    font-size: 16px;
+    background: white;
+    appearance: none;
+}

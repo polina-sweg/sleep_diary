@@ -1,0 +1,49 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .avatar-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 15px;
+        border: 2px solid #B0E0E6;
+    }
+</style>
+
+<div class="container-1">
+    <h2>Ваш профиль</h2>
+
+    <form method="post" enctype="multipart/form-data" class="form-1">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Ваше фото:</label>
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" class="avatar-preview" alt="Avatar">
+            {% else %}
+                <div class="avatar-preview" style="background: #87CEEB; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                    {{ user.username|first|upper }}
+                </div>
+            {% endif %}
+            <input type="file" name="profile_picture" accept="image/*">
+        </div>
+
+        {% for field in form %}
+            {% if field.name != 'profile_picture' %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <button type="submit" class="submit-button-1">Сохранить изменения</button>
+    </form>
+    <div class="link-1">
+        <a href="{% url 'home' %}">Назад к списку</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+    {% extends 'main.html' %}
+    {% load static %}
+
+    {% block content %}
+    <style>
+        .analytics-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 12px;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            flex: 1 1 200px;
+            min-width: 250px;
+        }
+
+        .metrics-box {
+            background: #f0f8ff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            text-align: center;
+            border: 2px solid #B0E0E6;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+        .quick-filter-btn {
+            background-color: white;
+            color: #4a90e2;
+            border: 2px solid #4a90e2;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .quick-filter-btn:hover {
+            background-color: #e6f0fb;
+            color: #2c6fb0;
+            border-color: #2c6fb0;
+        }
+    </style>
+
+    <div class="container-1 analytics-container">
+        <h1>Аналитика сна</h1>
+
+    <div class="form-group quick-filters" style="margin-top: auto; display: flex; gap: 0.5rem;">
+        <a href="?preset=week" class="quick-filter-btn">Неделя</a>
+        <a href="?preset=month" class="quick-filter-btn">Месяц</a>
+        <a href="?preset=year" class="quick-filter-btn">Год</a>
+    </div>
+
+        <form method="get" class="filter-section">
+    <div class="form-group">
+        <label>Дата начала:</label>
+        {{ form.start_date }}
+    </div>
+
+    <div class="form-group">
+        <label>Дата окончания:</label>
+        {{ form.end_date }}
+    </div>
+
+    <div class="form-group" style="margin-top: auto;">
+        <button type="submit" class="submit-button-1">
+            Применить фильтр
+        </button>
+    </div>
+</form>
+
+        <div class="metrics-box">
+            <div class="form-group" style="color: #4a6d88; margin-bottom: 0.5rem;">
+                Период: {{ period_info }}
+            </div>
+            <div class="metric-value">
+                {{ avg_duration }}
+            </div>
+            <div class="form-group" style="color: #87CEEB; font-size: 0.9rem;">
+                Средняя продолжительность сна
+            </div>
+        </div>
+
+        {% if no_data %}
+            <div class="empty-container">
+                <h3>Нет данных для отображения</h3>
+                <p>Выберите другой период или добавьте новые записи</p>
+            </div>
+        {% else %}
+            {{ deficit_chart|safe }}
+            {{ duration_chart|safe }}
+            {{ wakeup_chart|safe }}
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
+    {% endblock %}
